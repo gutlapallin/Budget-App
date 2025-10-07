@@ -1,29 +1,91 @@
 import Container from 'react-bootstrap/Container'
 import { Button, Stack } from "react-bootstrap"
 import BudgetCard from "./components/BugdetCard"
+import UncategorizedBudgetCard from './components/UncategorizedBudgetCard'
+import TotalBudgetCard from './components/TotalBudgetCard'
+import AddBudgetModal from './components/AddBudgetModal'
+import AddExpenseModal from './components/AddExpenseModal'
+import ViewExpensesModal from './components/viewExpensesModal'
+import { useState } from 'react'
+import { UNCATEGORIZED_BUDGET_ID, useBudgets} from './context/BudgetsContext'
+
+
 function App() {
+  const [showAddBudgetModal, setShowAddBudgetModal] = useState(false)
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false)
+  const [addExpenseModalBudgetId, setExpenseModalBudgetId] = useState()
+  const [viewExpensesModalBudgetId, setViewExpensesModalBudgetId] = useState()
+  const { useBudgets, getBudgetExpenses } = useBudgets()
+  
+  function openAddExpenseModal(budgetId)  {
+    setShowAddExpenseModal(true)
+    setExpenseModalBudgetId(budgetId)
+  }
+  
   return (
-    <Container className = "my-4">
-        <Stack direction ="horizontal" gap ="2" className ="mb-4" >
-          <ha className = "me-auto">BUDGET</ha>
+    <><Container className="my-4">
+      <Stack direction="horizontal" gap="2" className="mb-4">
+        <ha className="me-auto">BUDGET</ha>
 
-          <Button variant="primary"> Add Budget</Button>
-          <Button variant="outline-primary"> Add Expense</Button>
+        <Button variant="primary"> onClick={() => setShowAddBudgetModal(true)} Add Budget</Button>
+        <Button variant="outline-primary"> onClick=(openAddExpenseModal) Add Expense </Button>
 
-        </Stack>
+      </Stack>
 
-        <div style={{
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-          gap: "1rem", 
-          alignItems: "flex-start",
-         }} 
-         >
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+        gap: "1rem",
+        alignItems: "flex-start",
+      }}
+      >
+        {useBudgets.map(budget => {
+          const amount  = getBudgetExpenses(budget.id).reduce((total,expense) => total + expense.amount, 0)
+          return  (
+            <BudgetCard 
+              key = {budget.id}
+              name={budget.name}
+              amount={amount} 
+              max={budget.max} 
+              onAddExpenseClick={() => openAddExpenseModal(budget.id)}
+              onViewExpensesClick={() => setViewExpensesModalBudgetId(budget.id)}
+            /> )
 
-          <BudgetCard name="Entertainment" amount={800} max ={1000} gray> </BudgetCard>
 
-         </div>
+        })}
+
+        <BudgetCard 
+          name="Entertainment" 
+          amount={800} 
+          max={1000} 
+          gray> 
+        </BudgetCard>
+        
+        <UncategorizedBudgetCard onAddExpenseClick={openAddExpenseModal} 
+         onViewExpensesClick={() => setViewExpensesModalBudgetId(UNCATEGORIZED_BUDGET_ID)}/>
+        <TotalBudgetCard />
+      </div>
     </Container>
+    
+    <AddBudgetModal 
+      show={showAddBudgetModal} 
+      handleClose={() => setShowAddBudgetModal(false)} 
+    />
+
+    <AddExpenseModal 
+      show={showAddExpenseModal} 
+      defaultBudgetId={addExpenseModalBudgetId}
+      handleClose={() => setShowAddExpenseModal(false)}
+      
+    />
+
+    <ViewExpensesModal 
+      budgetId={viewExpensesModalBudgetId}
+      defaultBudgetId={addExpenseModalBudgetId}
+      handleClose={() => setViewExpensesModalBudgetId()}
+      
+    />  
+  </>
 
   )
 }
