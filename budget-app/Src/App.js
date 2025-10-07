@@ -15,7 +15,7 @@ function App() {
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false)
   const [addExpenseModalBudgetId, setExpenseModalBudgetId] = useState()
   const [viewExpensesModalBudgetId, setViewExpensesModalBudgetId] = useState()
-  const { useBudgets, getBudgetExpenses } = useBudgets()
+  const { budgets, getBudgetExpenses } = useBudgets()
   
   function openAddExpenseModal(budgetId)  {
     setShowAddExpenseModal(true)
@@ -25,7 +25,7 @@ function App() {
   return (
     <><Container className="my-4">
       <Stack direction="horizontal" gap="2" className="mb-4">
-        <ha className="me-auto">BUDGET</ha>
+        <ha className="me-auto">BUDGETS</ha>
 
         <Button variant="primary"> onClick={() => setShowAddBudgetModal(true)} Add Budget</Button>
         <Button variant="outline-primary"> onClick=(openAddExpenseModal) Add Expense </Button>
@@ -39,7 +39,7 @@ function App() {
         alignItems: "flex-start",
       }}
       >
-        {useBudgets.map(budget => {
+        {budgets.map(budget => {
           const amount  = getBudgetExpenses(budget.id).reduce((total,expense) => total + expense.amount, 0)
           return  (
             <BudgetCard 
